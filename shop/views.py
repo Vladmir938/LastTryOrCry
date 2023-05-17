@@ -11,19 +11,19 @@ from rest_framework.views import APIView
 from .forms import LoginForm, AddToCartForm
 from .models import Category, Product, Cart, Order, CartItem
 from .serializers import CategorySerializer, ProductSerializer, CartSerializer, OrderSerializer, CartDetailSerializer
-from .permissions import CategoryPermission
+from .permissions import ManagerOrReadOnly
 
 
 class CategoryApiView(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [CategoryPermission]
+    permission_classes = [ManagerOrReadOnly]
 
 
 class ProductApiView(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [CategoryPermission]
+    permission_classes = [ManagerOrReadOnly]
 
     @action(detail=False, methods=['get'])
     def by_category(self, request):
@@ -43,7 +43,7 @@ class CartApiView(LoginRequiredMixin, viewsets.ModelViewSet):
         return Cart.objects.filter(user=self.request.user)
 
 
-class AddToCartView(APIView):
+class AddToCartView(LoginRequiredMixin, APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -91,7 +91,7 @@ class AddToCartView(APIView):
         return render(request, 'add_to_cart.html', context)
 
 
-class OrderApiView(viewsets.ModelViewSet):
+class OrderApiView(LoginRequiredMixin, viewsets.ModelViewSet):
     serializer_class = OrderSerializer
 
     def get_queryset(self):
@@ -116,7 +116,7 @@ class OrderApiView(viewsets.ModelViewSet):
         return Response({'order_count': order_count, 'total_price': total_price})
 
 
-class OrderCreateApiView(APIView):
+class OrderCreateApiView(LoginRequiredMixin, APIView):
     serializer_class = OrderSerializer
 
     def post(self, request, *args, **kwargs):

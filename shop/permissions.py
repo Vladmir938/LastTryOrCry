@@ -8,7 +8,7 @@ class IsUser(permissions.BasePermission):
         return False
 
 
-class CategoryPermission(permissions.BasePermission):
+class ManagerOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method == 'GET':
             return True
